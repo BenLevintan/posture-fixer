@@ -1,24 +1,28 @@
 import cv2
-
 from camera_utils import get_working_camera
+from pose_utils import PoseDetector # Import your new tool
 
 def main():
-    # Call our new function to get the correct camera
     cap = get_working_camera()
 
-    # If it returned None, we can't proceed. Exit the program.
     if cap is None:
         return
 
     print("Camera initialized. Press 'q' to quit.")
 
-    # The video loop remains exactly the same
+    # Initialize our pose detector object BEFORE the loop starts
+    detector = PoseDetector()
+
     while True:
         ret, frame = cap.read()
 
         if not ret:
             print("Error: Video stream interrupted.")
             break
+
+        # Send the raw frame into the detector.
+        # It will return the same frame, but with the skeleton drawn on it!
+        frame = detector.find_and_draw_pose(frame)
 
         cv2.imshow('Posture Detection Feed', frame)
 
