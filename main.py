@@ -20,22 +20,23 @@ def main():
 
             frame = detector.find_and_draw_pose(frame)
             
-            # Get the math for our custom angle!
-            nose_y, shoulder_line_y = detector.get_posture_data()
+            # Get our true perpendicular distance
+            slouch_distance = detector.get_posture_data()
             
-            if nose_y is not None and shoulder_line_y is not None:
-                # Calculate the difference. 
-                # If difference is positive, the nose is BELOW the shoulder line (slouching!)
-                difference = nose_y - shoulder_line_y
+            if slouch_distance is not None:
+                # Print it so we can observe the math in real-time
+                print(f"Distance from Line: {slouch_distance:.4f}")
                 
-                # Print it so you can see the data stream
-                print(f"Nose Y: {nose_y:.3f} | Shoulder Line Y: {shoulder_line_y:.3f} | Diff: {difference:.3f}")
+                # If distance is > 0, the nose crossed the slanted shoulder line!
+                # You might want to use something like > 0.05 to give yourself a tiny bit of grace room.
+                if slouch_distance > 0.02: 
+                    print("⚠️ BAD POSTURE DETECTED! ⚠️")
 
             cv2.imshow('Posture Detection Feed', frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-            
+
     cap.release()
     cv2.destroyAllWindows()
 

@@ -1,22 +1,7 @@
+# pose_utils.py
 import cv2
 import mediapipe as mp
-
-class PoseDetector:
-    def __init__(self):
-        # Initialize the MediaPipe Pose module
-        self.mp_pose = mp.solutions.pose
-        self.mp_draw = mp.solutions.drawing_utils
-        
-        # Setup the pose model with standard parameters
-        self.pose = self.mp_pose.Pose(
-            static_image_mode=False,       # False means it treats the feed as a video, tracking motion
-            model_complexity=1,            # 0 is fastest, 2 is most accurate. 1 is a good middle ground.
-            min_detection_confidence=0.5,  # How confident the AI must be to initially find a person
-            min_tracking_confidence=0.5    # How confident it must be to keep tracking them
-        )
-
-import cv2
-import mediapipe as mp
+import math # Make sure to add this at the top!
 
 class PoseDetector:
     def __init__(self):
@@ -43,22 +28,33 @@ class PoseDetector:
         return frame
 
     def get_posture_data(self):
-        """Extracts the specific Y coordinates needed for the top-down angle."""
+        """Calculates the perpendicular distance from the nose to the shoulder line."""
         if self.results and self.results.pose_landmarks:
             landmarks = self.results.pose_landmarks.landmark
             
-            # MediaPipe landmarks give values from 0.0 to 1.0 (percentages of the screen)
-            # Landmark 0 = Nose, 11 = Left Shoulder, 12 = Right Shoulder
-            nose_y = landmarks[0].y
-            l_shoulder_y = landmarks[11].y
-            r_shoulder_y = landmarks[12].y
+            # Extract specific landmarks
+            nose = landmarks[0]
+            l_shoulder = landmarks[11]
+            r_shoulder = landmarks[12]
             
-            # Calculate the "Shoulder Line" (average Y of both shoulders)
-            shoulder_line_y = (l_shoulder_y + r_shoulder_y) / 2
+            # Step 1: Create a vector representing the shoulder line (Right to Left)
+            dx = l_shoulder.x - r_shoulder.x
+            dy = l_shoulder.y - r_shoulder.y
             
-            # Return these values so we can use them in main.py
-            return nose_y, shoulder_line_y
+            # Step 2: Create a vector from the Right Shoulder to the Nose
+            nx = nose.x - r_shoulder.x
+            ny = nose.y - r_shoulder.y
             
-        return None, None
+            # Step 3: Calculate the physical length of the shoulder line
+            line_length = math.sqrt(dx**2 + dy**2)
             
-        return frame
+            # Prevent division by zero crash if shoulders somehow perfectly overlap
+            if line_length == 0:
+                return None
+                
+            # Step 4: Calculate signed perpendicular distance using the cross product
+            distance = (dx * ny - dy * nx) / line_length
+            
+            return distance
+            
+        return None
