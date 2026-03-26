@@ -15,24 +15,50 @@ class PoseDetector:
             min_tracking_confidence=0.5    # How confident it must be to keep tracking them
         )
 
+import cv2
+import mediapipe as mp
+
+class PoseDetector:
+    def __init__(self):
+        self.mp_pose = mp.solutions.pose
+        self.mp_draw = mp.solutions.drawing_utils
+        self.pose = self.mp_pose.Pose(
+            static_image_mode=False,       
+            model_complexity=1,            
+            min_detection_confidence=0.5,  
+            min_tracking_confidence=0.5    
+        )
+
     def find_and_draw_pose(self, frame):
-        """Processes the frame, finds the pose, and draws the skeleton."""
-        
-        # CRITICAL STEP: Color Conversion
-        # OpenCV reads images in BGR (Blue, Green, Red) format.
-        # MediaPipe expects images in RGB (Red, Green, Blue) format.
-        # We must convert the color space before handing it to the AI.
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Pass the RGB image to the model to find the body landmarks
         self.results = self.pose.process(img_rgb)
 
-        # If the AI found a body (landmarks), draw them on the ORIGINAL BGR frame
         if self.results.pose_landmarks:
             self.mp_draw.draw_landmarks(
                 frame, 
                 self.results.pose_landmarks, 
-                self.mp_pose.POSE_CONNECTIONS # This draws the lines connecting the joints
+                self.mp_pose.POSE_CONNECTIONS
             )
+            
+        return frame
+
+    def get_posture_data(self):
+        """Extracts the specific Y coordinates needed for the top-down angle."""
+        if self.results and self.results.pose_landmarks:
+            landmarks = self.results.pose_landmarks.landmark
+            
+            # MediaPipe landmarks give values from 0.0 to 1.0 (percentages of the screen)
+            # Landmark 0 = Nose, 11 = Left Shoulder, 12 = Right Shoulder
+            nose_y = landmarks[0].y
+            l_shoulder_y = landmarks[11].y
+            r_shoulder_y = landmarks[12].y
+            
+            # Calculate the "Shoulder Line" (average Y of both shoulders)
+            shoulder_line_y = (l_shoulder_y + r_shoulder_y) / 2
+            
+            # Return these values so we can use them in main.py
+            return nose_y, shoulder_line_y
+            
+        return None, None
             
         return frame
