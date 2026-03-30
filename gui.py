@@ -14,7 +14,7 @@ class PostureApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Posture Monitor")
+        self.title("")
         self.geometry("900x520")
         
         # SWAPPED: Column 0 (Menu) is now fixed, Column 1 (Video) expands
@@ -44,9 +44,6 @@ class PostureApp(ctk.CTk):
         # 1. Controls Panel (NOW ON THE LEFT - Column 0)
         self.control_panel = ctk.CTkFrame(self, width=300, corner_radius=15)
         self.control_panel.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
-        
-        title = ctk.CTkLabel(self.control_panel, text="Settings", font=ctk.CTkFont(size=24, weight="bold"))
-        title.pack(pady=(20, 30))
 
         self.thresh_label = ctk.CTkLabel(self.control_panel, text="Slouch Sensitivity: 0.02", font=ctk.CTkFont(size=14))
         self.thresh_label.pack(anchor="w", padx=20)
@@ -88,12 +85,10 @@ class PostureApp(ctk.CTk):
             """Hides or shows the video frame."""
             if self.show_camera.get():
                 self.video_frame.grid(row=0, column=1, padx=(0, 20), pady=20, sticky="nsew")
-                # CHANGE 3: Set height to 520
                 self.geometry("900x520")
             else:
                 self.video_frame.grid_remove()
-                # CHANGE 4: Set height to 520
-                self.geometry("340x520")
+                self.geometry("285x520")
 
     def play_alert_sound(self):
         fs = 44100  
