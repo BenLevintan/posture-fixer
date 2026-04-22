@@ -1,6 +1,6 @@
 # 🪑 Posture Fixer
 
-> *A real-time posture correction tool powered by computer vision — and a little behavioral psychology.*
+> *A real-time posture correction tool powered by computer vision.*
 
 ![Status: Good](assets/image_posture_good.png)
 
@@ -8,32 +8,7 @@
 
 ## What It Does
 
-Posture Fixer watches you through your webcam using Google's **MediaPipe** pose estimation. It tracks the position of your mouth corners relative to your shoulder line, and when you start to slouch — your head drops, the distance grows — the app notices. Wait too long, and it beeps.
-
-That's it. Simple, local, no cloud, no subscriptions. Just a quiet sentinel sitting in the corner of your screen.
-
----
-
-## The Pavlov Effect
-
-Here's the thing I didn't expect when I built this.
-
-After running it for a few weeks, something strange happened: **I started fixing my posture before the beep.**
-
-Not because I was consciously thinking about it. The app had drilled a reflex into me. The sound — that short 880Hz tone — had become associated with the physical sensation of slouching. My brain, tired of being interrupted, started treating the *urge to slouch* as a warning signal all on its own.
-
-It's a textbook [Pavlovian conditioning](https://en.wikipedia.org/wiki/Classical_conditioning) loop:
-
-```
-[Slouch] → [Beep] → [Straighten up]
-    ↓
-After enough repetitions:
-[Slouch] → [Straighten up]   ← no beep needed
-```
-
-The app essentially trained me out of a bad habit by consistently pairing a behavior with an unpleasant stimulus. Over time, the stimulus became unnecessary — the association was already wired in.
-
-I still run the app. But these days it barely fires.
+Posture Fixer uses **MediaPipe** pose estimation via webcam. It tracks the position of your mouth corners relative to your shoulder line to detect slouching. If bad posture is maintained beyond a threshold, an audio alert is triggered.
 
 ---
 
@@ -48,7 +23,7 @@ I still run the app. But these days it barely fires.
 
 ## How the Detection Works
 
-The core metric isn't a simple head angle or neck distance. It's a **perpendicular distance** from your mouth corners to your shoulder line — calculated using a cross-product formula and normalized by shoulder width so it's scale-invariant (works whether you're close or far from the camera).
+The core metric is the **perpendicular distance** from your mouth corners to the shoulder line. This is calculated using a cross-product formula and normalized by shoulder width to maintain scale invariance.
 
 ```python
 # Vector representing the shoulder line (right → left)

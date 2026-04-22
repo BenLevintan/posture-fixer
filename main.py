@@ -4,12 +4,11 @@ import time
 from camera_utils import get_working_camera
 from pose_utils import PoseDetector
 
-# --- CONFIGURATION DICTIONARY ---
 CONFIG = {
     "diff_threshold": 0.0,  
     "camera_fps": 30,        
     "time_delay": 1.5,       
-    "sample_rate": 1         # NEW: Only process 1 out of every x frames
+    "sample_rate": 1
 }
 
 def main():
@@ -23,9 +22,8 @@ def main():
 
     detector = PoseDetector()
     
-    # --- STATE VARIABLES ---
     bad_posture_start_time = None 
-    frame_counter = 0  # NEW: Keep track of how many frames have passed
+    frame_counter = 0
 
     while True:
         ret, frame = cap.read()
@@ -36,10 +34,7 @@ def main():
 
         frame_counter += 1
 
-        # NEW: Only run the heavy AI and math if it is the "nth" frame
         if frame_counter % CONFIG["sample_rate"] == 0:
-            
-            # The heavy lifting
             frame = detector.find_and_draw_pose(frame)
             slouch_distance = detector.get_posture_data()
             
@@ -61,7 +56,6 @@ def main():
                         print("Posture corrected. Timer reset.")
                         bad_posture_start_time = None
 
-        # Display the frame (Note: on skipped frames, the skeleton won't be drawn!)
         cv2.imshow('Posture Detection Feed', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

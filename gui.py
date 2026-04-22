@@ -17,7 +17,6 @@ class PostureApp(ctk.CTk):
         self.title("")
         self.geometry("900x520")
         
-        # SWAPPED: Column 0 (Menu) is now fixed, Column 1 (Video) expands
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -41,7 +40,6 @@ class PostureApp(ctk.CTk):
         self.update_video_feed()
 
     def build_ui(self):
-        # 1. Controls Panel (NOW ON THE LEFT - Column 0)
         self.control_panel = ctk.CTkFrame(self, width=300, corner_radius=15)
         self.control_panel.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
@@ -70,7 +68,6 @@ class PostureApp(ctk.CTk):
         self.warning_label = ctk.CTkLabel(self.control_panel, text="", font=ctk.CTkFont(size=50))
         self.warning_label.pack(pady=5)
 
-        # 2. Video Frame (NOW ON THE RIGHT - Column 1)
         self.video_frame = ctk.CTkFrame(self, corner_radius=15)
         self.video_frame.grid(row=0, column=1, padx=(0, 20), pady=20, sticky="nsew")
         
